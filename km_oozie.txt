@@ -1,0 +1,115 @@
+
+
+
+---------------------------job.properties-------------------
+--bda-dev
+
+oozie.use.system.libpath=True
+oozie.wf.rerun.failnodes=True
+oozie.wf.application.path=/user/hue/oozie/workspaces/hue-oozie-datacomm--trans-dly-wf/
+send_email=True
+dryrun=False
+credentials={u'hcat': {'xml_name': u'hcat', 'properties': [('hcat.metastore.uri', u'thrift://bda-devnode10.km.com:9083'), ('hcat.metastore.principal', u'hive/bda-devnode10.km.com@bda-dev.km.com')]}, u'hive2': {'xml_name': u'hive2', 'properties': [('hive2.jdbc.url', u'jdbc:hive2://bda-devnode10.km.com:10000/default;ssl=true;sslTrustStore=/opt/cloudera/security/truststore/jssecacerts'), ('hive2.server.principal', 'hive/bda-devnode10.km.com@bda-dev.km.com')]}, u'hbase': {'xml_name': u'hbase', 'properties': []}}
+nameNode=hdfs://bda-devclu-ns
+jobTracker=yarnRM
+security_enabled=True
+support_group=datalicensesupport@km.com
+env=lake
+data_comm_schema=data_comm
+pdw_schema=vedh
+
+--BDA1
+
+
+
+
+
+----------------------------workflow.xml----------------------
+
+
+<workflow-app name="data_comm_stlmnt_daily_wf" xmlns="uri:oozie:workflow:0.5">
+  <credentials>
+    <credential name="hive2" type="hive2">
+      <property>
+        <name>hive2.jdbc.url</name>
+        <value>jdbc:hive2://bda-devnode10.km.com:10000/default;ssl=true;sslTrustStore=/opt/cloudera/security/truststore/jssecacerts</value>
+      </property>
+      <property>
+        <name>hive2.server.principal</name>
+        <value>hive/bda-devnode10.km.com@bda-dev.km.com</value>
+      </property>
+    </credential>
+  </credentials>
+    <start to="email-1b8b"/>
+    <kill name="Kill">
+        <message>Action failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    </kill>
+    <action name="email-1b8b">
+        <email xmlns="uri:oozie:email-action:0.2">
+            <to>Kiran.Miryala@km.com</to>
+            <subject>Data load for TRAN daily: Started</subject>
+            <body>Data load for TRAN daily: Started</body>
+            <content_type>text/plain</content_type>
+        </email>
+        <ok to="hive2-8d95"/>
+        <error to="Kill"/>
+    </action>
+
+----shell script----
+
+ <action name="shell-8d95">
+        <shell xmlns="uri:oozie:shell-action:0.1">
+            <job-tracker>yarnRM</job-tracker>
+            <name-node>hdfs://bda-devclu-ns</name-node>
+            <configuration>
+                <property>
+                    <name>mapreduce.job.queuename</name>
+                    <value>harmonization</value>
+                </property>
+            </configuration>
+            <exec>/lake/scripts/shellscripts/run_insert__tran_dly_stg1.sh</exec>
+            <file>/lake/scripts/shellscripts/run_insert__tran_dly_stg1.sh#run_insert__tran_dly_stg1.sh</file>
+              <capture-output/>
+        </shell>
+        <ok to="hive2-120f"/>
+        <error to="Kill"/>
+    </action>
+
+OR:
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+
+----hive2----------
+    <action name="hive2-8d95" cred="hive2">
+        <hive2 xmlns="uri:oozie:hive2-action:0.1">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <configuration>
+                <property>
+                    <name>mapreduce.job.queuename</name>
+                    <value>harmonization</value>
+                </property>
+            </configuration>
+            <jdbc-url>jdbc:hive2://bda-devnode10.km.com:10000/default;ssl=true;sslTrustStore=/opt/cloudera/security/truststore/jssecacerts</jdbc-url>
+            <script>/lake/scripts/sql/insert_data_comm_stlmnt_tran_dly_stg1_pin.sql</script>
+              <param>data_comm_schema=data_comm</param>
+        </hive2>
+        <ok to="hive2-dd1b"/>
+        <error to="Kill"/>
+    </action>
+
+
+
+
+-----fork/join
+<fork name="fork-0e05">
+        <path start="hive2-de05" />
+        <path start="hive2-de08" />
+</fork>
+
+---all action steps---
+
+<join name="join-5469" to="email-a921"/>
+<action ...
+
+
