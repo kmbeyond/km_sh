@@ -1,0 +1,19 @@
+
+
+
+
+
+#----- Overall disk usage
+hdfs dfs -df -h /
+=>
+Filesystem       Size   Used  Available  Use%
+hdfs://bda1-ns  4.5 P  2.4 P      2.1 P   54%
+
+
+
+
+#---- Disk usage of a directory
+hdfs dfs -du -h -s /hdfs/path/extract_date=2019-12-05/
+=>  40.8 G  122.4 G  /hdfs/path/extract_date=2019-12-05/
+
+
