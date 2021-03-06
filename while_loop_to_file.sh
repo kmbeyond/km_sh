@@ -2,31 +2,29 @@
 
 counter=1
 datafile=datafile.txt
-while [ $counter -le 5 ]
+while [[ $counter -le 1000 ]]
 do
- filenum=$(echo $counter | awk '{printf "%03d\n", $0;}')
- echo "write $filenum"
- echo "$filenum" >> $datafile
+ #For format : 001, 002, ...
+ #counter=$(echo $counter | awk '{printf "%03d\n", $0;}')
+ #echo "-> $counter"
+ echo "$counter" >> $datafile
  counter=$((counter+1))	 # increment
 done
 
-cat $datafile
+ls -lh $datafile
 
-#------output
-$ cat $datafile
-001
-002
-003
-004
-005
-
+#------output file size
+till 1000 => 3.9K
+till 5000 => 28K
+till 10000 => 48K
+till 100000 => 576K
 
 #----create multiple copies of a file
 counter=1
-src=2017_Hyundai_Ioniq-HEV_OM.pdf
+datafile=datafile.txt
 while [[ $counter -le 1000 ]]
 do
- cp $src ${counter}_$src
+ cp $datafile ${counter}_$datafile
  counter=$((counter+1)) #increment
 done
 
