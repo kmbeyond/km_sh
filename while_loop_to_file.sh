@@ -24,7 +24,7 @@ $ cat $datafile
 #----create multiple copies of a file
 counter=1
 src=2017_Hyundai_Ioniq-HEV_OM.pdf
-while [ $counter -le 1000 ]
+while [[ $counter -le 1000 ]]
 do
  cp $src ${counter}_$src
  counter=$((counter+1)) #increment
