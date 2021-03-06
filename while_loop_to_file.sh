@@ -27,7 +27,7 @@ src=2017_Hyundai_Ioniq-HEV_OM.pdf
 while [ $counter -le 1000 ]
 do
  cp $src ${counter}_$src
- counter=$((counter+1)
+ counter=$((counter+1)) #increment
 done
 
 
