@@ -2,7 +2,7 @@
 
 localDirName="."
 path_hdfs_app_root=""
-alert_email_addr="Kiran.Miryala@worldpay.com"
+alert_email_addr="km@km.com"
 
 #XSFTP_HOST=mft.km.com
 SFTP_HOST=qamft.km.com
