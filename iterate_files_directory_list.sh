@@ -1,7 +1,22 @@
 #!/bin/sh
 
------Iterate over directories/files
+-----Iterate files in adirectory
+#rename files by replacing %20 with _
+cd test
+for fileName in $(ls);
+do
+ fileNameNew2=$(echo $fileName | sed -e "s/%20/_/g")
+ echo "$fileName -> $fileNameNew2"
+ if [[ "$fileName" == "$fileNameNew2" ]]; then
+  echo "--> No change, so skip"
+ else
+  mv "$fileName" "$fileNameNew2"
+  echo "--> Rename"
+ fi
+done
 
+
+---find & iterate files/directories
 --directories--
 find csig/* -maxdepth 0 -type d  | xargs -n 1 basename
 for dirName in $(find ~/csig/* -maxdepth 0 -type d | xargs -n 1 basename); do echo ${dirName}; done
