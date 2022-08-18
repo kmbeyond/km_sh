@@ -1,6 +1,6 @@
 #!/bin/sh
 
------Iterate files in adirectory
+-----Iterate files in a directory
 #rename files by replacing %20 with _
 cd test
 for fileName in $(ls);
@@ -39,3 +39,7 @@ for fileName in $(ls ~/csig/*.json); do
 done
 
 
+#find older files (Older than 1000 days)
+find ./* -type f -mtime +1000 -exec ls -ltr {} \;
+#remove older files with extension .gz (Older than 1000 days)
+find ./* -type f -mtime +1000 -name "*.gz" -exec rm -r {} \;
