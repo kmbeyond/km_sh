@@ -33,6 +33,19 @@ test_string="abc_def_ghi-jkl_mno"
 #---using cut
 echo $(echo $test_string | cut -d '_' -f 3 ) #split by delimiter _ & return 2nd field/element
 => ghi-jkl
+
+
+my_string="abcdefg|hijkl"
+#--extract string before specific string using substring
+echo ${my_string%%|*}
+=> abcdefg
+
+
+#--extract string after a specific string
+echo ${my_string##*|}
+=> hijkl
+
+
 #OR echo $(cut -d '_' -f 3 <<< "$test_string")
 
 
