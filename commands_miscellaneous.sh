@@ -1,4 +1,5 @@
 
+data_on_file=$(cat my_file.txt)
 
 #return a random number between 10 & 99
 shuf -i 10-99 -n 1
@@ -14,4 +15,25 @@ zip -r km_zipped_file.zip .
 #unzip
 unzip km_zipped_file.zip -d .
 unzip km_zipped_file.zip -d km_unzipped_dir/
+
+
+#split a string
+test_string="abc_def_ghi-jkl_mno"
+
+#---using cut
+echo $(echo $test_string | cut -d '_' -f 3 ) #split by delimiter _ & return 2nd field/element
+=> ghi-jkl
+#OR echo $(cut -d '_' -f 3 <<< "$test_string")
+
+
+
+#---using awk
+echo $(echo "${test_string}" | awk -F'_' '{print $3}')
+#OR echo $(awk -F'_' '{print $3}' <<< ${test_string})
+
+#split by any character _ or -
+echo $(echo "${test_string}" | awk -F'[_-]' '{print $3}')
+=> ghi
+
+
 
