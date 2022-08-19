@@ -35,7 +35,7 @@ fi
 
 month_on_file="$(echo $date_on_file | cut -d '-' -f 2 )"
 #OR month_on_file=$(echo "${date_on_file}" | awk -F'-' '{print $2}')
-#OR month_on_file=$(echo "${date_on_file}" | awk -F'[-.]' '{print $2}') #split by either character: - or .
+
 
 if [ $(date '+%m') == "$month_on_file" ]; then
  echo "same Month"
