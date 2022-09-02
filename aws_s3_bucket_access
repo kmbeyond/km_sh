@@ -58,7 +58,7 @@ aws s3 cp comp1_data s3://km_bkt/comp1_data/ --recursive --profile xx
             "Principal": {
                 "AWS": "arn:aws:iam::111:user/user1"
             },
-            "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
+            "Action": ["s3:GetObject", "s3:PutObject"],
             "Resource": "arn:aws:s3:::km_bkt/comp1_data/*"
         }
     ]
