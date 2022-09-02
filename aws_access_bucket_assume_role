@@ -1,0 +1,112 @@
+
+----comp1-user1 -> comp2-bucket1
+
+comp1:
+1)Create user in comp1: user1
+2)share user arn to comp2
+
+Comp2:
+1)Create policy: km-ext-policy
+2)Create Role: km-ext-role
+3)Add policy to role
+4)Add Trust Relationship for assume-role for the user1 arn
+5)Create Bucket: Update policy to grant access to role
+ -km-ext-bucket
+
+Create Policy: km-ext-policy
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:ListBucketMultipartUploads",
+                "s3:AbortMultipartUpload",
+                "s3:ListBucket",
+                "s3:ListBucket",
+                "s3:GetBucketLocation"
+            ],
+            "Resource": [
+                "arn:aws:s3:::km-ext-bucket/*",
+                "arn:aws:s3:::km-ext-bucket"
+            ]
+        },
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": "s3:PutObject",
+            "Resource": [
+                "arn:aws:s3:::km-ext-bucket/*"
+            ]
+        }
+    ]
+}
+
+Create Role: km-ext-role
+Update Trust Relationship
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::111:user1"
+            },
+            "Action": "sts:AssumeRole",
+            "Condition": {}
+        }
+    ]
+}
+
+Create Bucket: arn:aws:s3:::km-ext-bucket
+Update/add policy:
+
+{
+    "Version": "2012-10-17",
+    "Id": "Policy1630424448957",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::222:role/km-ext-role"
+            },
+            "Action": [
+                "s3:GetBucketLocation",
+                "s3:ListBucket"
+            ],
+            "Resource": "arn:aws:s3:::km-ext-bucket"
+        },
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::222:role/km-ext-role"
+            },
+            "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "s3:DeleteObject",
+                "s3:PutObjectAcl"
+            ],
+            "Resource": "arn:aws:s3:::km-ext-bucket/*"
+        }
+    ]
+}
+
+
+From comp2, open a terminal session to assume-role:
+
+temp_role=$(
+ aws sts assume-role --role-arn "arn:aws:iam::222:role/km_bkt_role" --role-session-name "km-session-001" --profile "srv-cdp-bda-external-dev"
+)
+#=> with -- => An error occurred (ValidationError) when calling the AssumeRole operation: The requested DurationSeconds exceeds the MaxSessionDuration set for this role.
+
+echo $temp_role
+
+export AWS_ACCESS_KEY_ID=$(echo $temp_role | python2 -c "import sys, json; print json.load(sys.stdin)['Credentials']['AccessKeyId']")
+export AWS_SECRET_ACCESS_KEY=$(echo $temp_role | python2 -c "import sys, json; print json.load(sys.stdin)['Credentials']['SecretAccessKey']")
+export AWS_SESSION_TOKEN=$(echo $temp_role | python2 -c "import sys, json; print json.load(sys.stdin)['Credentials']['SessionToken']")
+
+aws s3 ls
