@@ -16,7 +16,9 @@ arn:aws:iam::111:user/comp1_user1
             "Action": [
                 "s3:GetObjectAcl",
                 "s3:GetObject",
-                "s3:ListBucket"
+                "s3:ListBucket",
+                "s3:PutObject",
+                "s3:DeleteObject"
             ],
             "Resource": [
                 "arn:aws:s3:::comp2_bucket",
