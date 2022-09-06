@@ -1,0 +1,93 @@
+---comp1:111 -user to access data provided by comp2 at comp2_bucket
+---comp2:222 
+---comp1_user1 -> comp2_bucket
+
+
+--comp1:111
+(1)create user to share to customer
+arn:aws:iam::111:user/comp1_user1
+(2)Update user policy to allow S3 access, ex:
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObjectAcl",
+                "s3:GetObject",
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::comp2_bucket",
+                "arn:aws:s3:::comp2_bucket/comp1_data/*"
+            ]
+        }
+    ]
+}
+
+(3)Share to comp2 & allow to setup
+(4)Once setup done by comp2, view data
+aws s3 ls s3://comp2_bucket/comp1_data/ --profile yy
+aws s3 cp s3://comp2_bucket/comp1_data local_path/ --recursive --profile yy
+
+
+--comp2:222
+(1)create bucket: comp2_bucket
+
+(2)update policy on bucket 
+ -internal user (comp2_user_to_upload) to upload data to bucket
+ -access to comp1_user1
+ 
+bucket policy:
+{
+    "Version": "2012-10-17",
+    "Id": "Policy1630424448957",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::222:user/comp2_user_to_upload"
+            },
+            "Action": [
+                "s3:GetBucketLocation",
+                "s3:ListBucket"
+            ],
+            "Resource": "arn:aws:s3:::comp2_bucket"
+        },
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::222:user/comp2_user_to_upload"
+            },
+            "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "s3:DeleteObject",
+                "s3:PutObjectAcl"
+            ],
+            "Resource": "arn:aws:s3:::comp2_bucket/*"
+        },
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::111:user/comp1_user1"
+            },
+            "Action": "s3:ListBucket",
+            "Resource": "arn:aws:s3:::comp2_bucket",
+            "Condition":{"StringLike":{"s3:prefix":["comp1_data/*"]}}
+        },
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::111:user/comp1_user1"
+            },
+            "Action": ["s3:GetObject", "s3:PutObject"],
+            "Resource": "arn:aws:s3:::comp2_bucket/comp1_data/*"
+        }
+    ]
+}
+
+3)upload data to bucket at comp1_data
+aws s3 cp comp1_data s3://comp2_bucket/comp1_data/ --recursive --profile comp2_user_to_upload
+
