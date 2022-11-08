@@ -19,7 +19,6 @@ set request_pool=${pool_name};
 REFRESH ${db_hive}.tbl_ext_tbl1;
 REFRESH ${db_hive}.tbl_ext_tbl2;
 
-
 INSERT OVERWRITE TABLE ${db_hive}.tbl_ext_tbl2 PARTITION (extract_date='${dt_today}')
   SELECT * FROM ${db_hive}.tbl_ext_tbl1;
   
@@ -34,4 +33,25 @@ if [ $retCode -ne 0 ]; then
     exit 10
 fi
 
+
+#------------query impala & capture output to string
+for data_row in $(impala-shell --ssl -i "$imp_deamon" --quiet -q "set request_pool=general; INVALIDATE METADATA data_comm.cnvr_tran_stg1_dly; SELECT * FROM data_comm.cnvr_tran_stg1_dly;" --output_delimiter="|" -B ); do
+ echo "$data_row"
+done
+
+#result into a variable
+impala_result=$(impala-shell --ssl -i "$imp_deamon" --quiet -q "set request_pool=general; INVALIDATE METADATA data_comm.cnvr_tran_stg1_dly; SELECT * FROM data_comm.cnvr_tran_stg1_dly;" --output_delimiter="|" -B )
+
+#loop through rows
+for row in $(echo $impala_result);
+do
+  col2=$(echo "$row" | awk -F'|' '{print $2}')
+  echo "$row -> $col2"
+done
+
+#split result into array & loop through array
+array=(${impala_result//\\n/ })
+for element in "${array[@]}"; do
+  echo $element;
+done
 
