@@ -48,6 +48,10 @@ do
   col2=$(echo "$row" | awk -F'|' '{print $2}')
   echo "$row -> $col2"
 done
+#split string into multiple variables in one statement
+  IFS=\| read -r col val <<< "$row"
+  #IFS=- read -r col val <<< "$row"
+  echo "$row -> $col - $val"
 
 #split result into array & loop through array
 array=(${impala_result//\\n/ })
