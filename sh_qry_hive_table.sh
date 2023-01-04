@@ -30,6 +30,8 @@ IFS=',' read col1 col2 col3 <<<$sql_row2
 
 #OR: Split using cut
 col1=$(echo $sql_row2 | cut -f1 -d,)
+#OR: col1=$(cut -f1 -d',' <<< "$sql_row2");
+
 col2=$(echo $sql_row2 | cut -f2 -d,)
 
 
